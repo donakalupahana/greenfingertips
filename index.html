@@ -1,114 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Greenfingertips PDF</title>
-  <style>
-    html, body { margin: 0; height: 100%; background: #f2f2f2; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    #topbar {
-      position: sticky; top: 0; z-index: 10;
-      display: flex; gap: 8px; align-items: center;
-      padding: 10px; background: white; border-bottom: 1px solid #ddd;
-    }
-    #viewerWrap { max-width: 1000px; margin: 0 auto; padding: 12px; }
-    canvas { width: 100%; height: auto; display: block; margin: 0 auto 14px; background: white; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
-    button { padding: 6px 10px; }
-    input { width: 70px; padding: 6px; }
-    #status { margin-left: auto; color: #555; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div id="topbar">
-    <button id="zoomOut">−</button>
-    <button id="zoomIn">+</button>
-
-    <span>Page</span>
-    <input id="pageNum" type="number" min="1" value="1" />
-    <span id="pageCount"></span>
-
-    <button id="go">Go</button>
-
-    <span id="status">Loading…</span>
-  </div>
-
-  <div id="viewerWrap">
-    <div id="pages"></div>
-  </div>
-
-  <!-- PDF.js -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
-  <script>
-    // ✅ Make sure this matches your PDF filename exactly (case-sensitive)
-    const PDF_URL = "Greenfingertips-MakingGreenerLabsAReality-CaseStudies.pdf";
-
-    // Required worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js";
-
-    const pagesEl = document.getElementById("pages");
-    const statusEl = document.getElementById("status");
-    const pageNumEl = document.getElementById("pageNum");
-    const pageCountEl = document.getElementById("pageCount");
-
-    let pdfDoc = null;
-    let scale = 1.4;
-
-    async function renderAllPages() {
-      pagesEl.innerHTML = "";
-      statusEl.textContent = "Rendering…";
-
-      for (let p = 1; p <= pdfDoc.numPages; p++) {
-        const page = await pdfDoc.getPage(p);
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        pagesEl.appendChild(canvas);
-        await page.render({ canvasContext: ctx, viewport }).promise;
-      }
-
-      statusEl.textContent = "";
-    }
-
-    async function init() {
-      try {
-        const loadingTask = pdfjsLib.getDocument(PDF_URL);
-        pdfDoc = await loadingTask.promise;
-
-        pageCountEl.textContent = `/ ${pdfDoc.numPages}`;
-        statusEl.textContent = "";
-
-        await renderAllPages();
-      } catch (e) {
-        statusEl.textContent = "Failed to load PDF. Check filename/path.";
-        console.error(e);
-      }
-    }
-
-    document.getElementById("zoomIn").addEventListener("click", async () => {
-      scale = Math.min(scale + 0.2, 3.0);
-      await renderAllPages();
-    });
-
-    document.getElementById("zoomOut").addEventListener("click", async () => {
-      scale = Math.max(scale - 0.2, 0.6);
-      await renderAllPages();
-    });
-
-    document.getElementById("go").addEventListener("click", () => {
-      const n = parseInt(pageNumEl.value, 10);
-      if (!Number.isFinite(n) || n < 1 || n > pdfDoc.numPages) return;
-      // Scroll to that page canvas
-      const canvas = pagesEl.querySelectorAll("canvas")[n - 1];
-      if (canvas) canvas.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
-    init();
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PDF</title>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      iframe { width: 100%; height: 100%; border: 0; }
+    </style>
+  </head>
+  <body>
+    <iframe src="Greenfingertips-MakingGreenerLabsAReality-CaseStudies.pdf"></iframe>
+  </body>
 </html>
